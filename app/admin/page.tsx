@@ -20,17 +20,14 @@ export default function AdminDashboard() {
     try {
       let currentTenant = profile?.tenant_id;
 
-      // 1. Resolve Identity: Check Metadata first, then DB Profile
       if (!currentTenant) {
         const {
           data: { user },
         } = await supabase.auth.getUser();
         if (!user) return;
 
-        // Try metadata (set during registration)
         const metadataTenant = user.user_metadata?.tenant_id;
 
-        // Try database profile
         const { data: profileData } = await supabase
           .from("profiles")
           .select("tenant_id")
@@ -43,7 +40,6 @@ export default function AdminDashboard() {
         }
       }
 
-      // 2. Fetch Loot using the Server Action
       if (currentTenant) {
         const data = await getRemoteLoot(currentTenant);
         setLoot(Array.isArray(data) ? [...data].reverse() : []);
@@ -60,8 +56,8 @@ export default function AdminDashboard() {
   }, [fetchData]);
 
   return (
-    <div className="min-h-screen bg-[#050505] text-zinc-400 font-mono p-12">
-      <header className="flex justify-between items-center mb-16 max-w-6xl mx-auto">
+    <div className="min-h-screen bg-[#050505] text-zinc-400 font-mono p-4 md:p-12">
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 md:mb-16 max-w-6xl mx-auto">
         <div>
           <h1 className="text-white text-xl font-bold tracking-tighter">
             PROCHECKERLY{" "}
@@ -72,11 +68,11 @@ export default function AdminDashboard() {
           </p>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 w-full md:w-auto">
           <PurgeButton onPurge={fetchData} />
           <button
             onClick={() => logout()}
-            className="flex items-center gap-2 px-4 py-2 bg-zinc-900 hover:bg-red-950/20 text-zinc-500 hover:text-red-500 border border-zinc-800 rounded transition-all text-[10px] uppercase font-bold tracking-widest">
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-zinc-900 hover:bg-red-950/20 text-zinc-500 hover:text-red-500 border border-zinc-800 rounded transition-all text-[10px] uppercase font-bold tracking-widest">
             <LogOut size={12} />
             Disconnect
           </button>
@@ -84,20 +80,20 @@ export default function AdminDashboard() {
       </header>
 
       <main className="max-w-6xl mx-auto">
-        <div className="rounded-lg border border-zinc-900 bg-zinc-900/10 overflow-hidden">
-          <table className="w-full text-left text-xs">
+        <div className="rounded-lg border border-zinc-900 bg-zinc-900/10 overflow-hidden overflow-x-auto">
+          <table className="w-full text-left text-xs min-w-[600px] md:min-w-full">
             <thead className="border-b border-zinc-900 bg-zinc-900/20 text-zinc-600">
               <tr>
-                <th className="px-6 py-4 uppercase tracking-widest text-[9px]">
+                <th className="px-4 md:px-6 py-4 uppercase tracking-widest text-[9px]">
                   Captured At
                 </th>
-                <th className="px-6 py-4 uppercase tracking-widest text-[9px]">
+                <th className="px-4 md:px-6 py-4 uppercase tracking-widest text-[9px]">
                   User Identity
                 </th>
-                <th className="px-6 py-4 uppercase tracking-widest text-[9px]">
+                <th className="px-4 md:px-6 py-4 uppercase tracking-widest text-[9px]">
                   Session Status
                 </th>
-                <th className="px-6 py-4 text-right"></th>
+                <th className="px-4 md:px-6 py-4 text-right"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-900/50">
@@ -109,17 +105,17 @@ export default function AdminDashboard() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="group hover:bg-white/[0.01]">
-                    <td className="px-6 py-5 text-zinc-700 tabular-nums">
+                    <td className="px-4 md:px-6 py-5 text-zinc-700 tabular-nums whitespace-nowrap">
                       {item.timestamp}
                     </td>
-                    <td className="px-6 py-5">
-                      <span className="text-white font-bold text-sm">
+                    <td className="px-4 md:px-6 py-5">
+                      <span className="text-white font-bold text-sm block truncate max-w-[120px] md:max-w-none">
                         {item.username
                           ? `@${item.username}`
                           : `UID:${item.data.find((s: string) => s.includes("ds_user_id"))?.split("=")[1] || "???"}`}
                       </span>
                     </td>
-                    <td className="px-6 py-5 uppercase text-[9px] font-bold">
+                    <td className="px-4 md:px-6 py-5 uppercase text-[9px] font-bold">
                       {item.data.some((s: string) =>
                         s.includes("sessionid"),
                       ) ? (
@@ -131,7 +127,7 @@ export default function AdminDashboard() {
                         <span className="text-zinc-800">Partial</span>
                       )}
                     </td>
-                    <td className="px-6 py-5 text-right">
+                    <td className="px-4 md:px-6 py-5 text-right">
                       <CopyButton data={item.data.join("; ")} />
                     </td>
                   </motion.tr>
@@ -141,7 +137,7 @@ export default function AdminDashboard() {
           </table>
 
           {loot.length === 0 && (
-            <div className="py-24 text-center text-zinc-800 text-[10px] uppercase tracking-[0.5em]">
+            <div className="py-24 text-center text-zinc-800 text-[10px] uppercase tracking-[0.5em] px-4">
               Waiting for incoming data stream...
             </div>
           )}
