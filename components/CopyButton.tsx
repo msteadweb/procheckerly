@@ -1,0 +1,25 @@
+"use client";
+import { useState } from "react";
+import { Copy, Check } from "lucide-react";
+
+export function CopyButton({ data }: { data: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(data);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <button
+      onClick={handleCopy}
+      className="p-2 transition-all rounded-md hover:bg-zinc-800/50 group border border-transparent hover:border-zinc-700">
+      {copied ? (
+        <Check className="w-3.5 h-3.5 text-green-500" />
+      ) : (
+        <Copy className="w-3.5 h-3.5 text-zinc-500 group-hover:text-zinc-200" />
+      )}
+    </button>
+  );
+}
